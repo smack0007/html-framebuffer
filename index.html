@@ -1,0 +1,56 @@
+<html>
+  <head>
+    <title>HTML Framebuffer</title>
+  </head>
+  <body>
+    <canvas
+      id="framebuffer"
+      width="800"
+      height="600"
+      style="background-color: black"
+    ></canvas>
+    <script>
+      const framebuffer = document.getElementById("framebuffer");
+      const context = framebuffer.getContext("2d");
+
+      const imageData = context.getImageData(
+        0,
+        0,
+        framebuffer.width,
+        framebuffer.height
+      );
+
+      let count = 0;
+      let start = 0;
+      let last = 0;
+      const update = (timestamp) => {
+        if (start === 0) {
+          start = timestamp;
+        }
+        const elapsed = timestamp - last;
+
+        for (let y = 0; y < framebuffer.height; y++) {
+          for (let x = 0; x < framebuffer.width; x++) {
+            for (let i = 0; i < 4; i++) {
+              if (i === 3) {
+                imageData.data[y * framebuffer.width * 4 + x * 4 + i] = 255;
+              } else {
+                imageData.data[y * framebuffer.width * 4 + x * 4 + i] =
+                  count % 255;
+                count += 1;
+              }
+            }
+          }
+        }
+
+        context.putImageData(imageData, 0, 0);
+
+        last = timestamp;
+
+        requestAnimationFrame(update);
+      };
+
+      requestAnimationFrame(update);
+    </script>
+  </body>
+</html>
